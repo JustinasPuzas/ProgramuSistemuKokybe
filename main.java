@@ -1,7 +1,7 @@
 public class MainActivity extends AppCompatActivity {
         TimePickerDialog mTimePicker;
-        TextView laiko_skirtumas;
-        TextView kiekRaidziu;
+        TextView timeDifference;
+        TextView letterCount;
         TextView display;
         View contextTextView;
         @Override
@@ -9,21 +9,21 @@ public class MainActivity extends AppCompatActivity {
                 super.onCreate(savedInstanceState);
                 setContentView(R.layout.activity_main);
                 display = (TextView) findViewById(R.id.display);
-                laiko_skirtumas = (TextView)findViewById(R.id.laikoSkirtumas);
-                kiekRaidziu = (TextView)findViewById(R.id.raidziuKiekis);
-                System.out.println(laiko_skirtumas.getText());
-                registerForContextMenu(laiko_skirtumas);
-                registerForContextMenu(kiekRaidziu);
-                long hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-                long minute = Calendar.getInstance().get(Calendar.MINUTE);
+                timeDifference = (TextView)findViewById(R.id.time_difference);
+                letterCount = (TextView)findViewById(R.id.letter_count);
+                System.out.println(timeDifference.getText());
+                registerForContextMenu(timeDifference);
+                registerForContextMenu(letterCount);
+                int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+                int minute = Calendar.getInstance().get(Calendar.MINUTE);
 
                  mTimePicker = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
                         @Override
                         public void onTimeSet(TimePicker timePicker, int i, int i1) {
-                                laiko_skirtumas.setText("Skirtumas tarp dabar ir nurodyto laiko yra "+ count(i, i1) + " minutės");
+                                timeDifference.setText("Skirtumas tarp dabar ir nurodyto laiko yra "+ countTimeDifferenceInMinutes(i, i1) + " minutės");
 
                         }
-                }, (int)hour, (int) minute, false);
+                }, hour, minute, false);
         }
         @Override
         public boolean onCreateOptionsMenu(Menu menu) {
@@ -40,10 +40,10 @@ public class MainActivity extends AppCompatActivity {
 
                 switch(item.getItemId()) {
                         case R.id.cCount:
-                                kiekRaidziu.setText("Tekste yra " + key.length() + " simboliu");
+                                letterCount.setText("Tekste yra " + key.length() + " simboliu");
                                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                                builder.setTitle("Simboliu skaicius");
-                                builder.setMessage("Tekste yra " + key.length() + " simboliu");
+                                builder.setTitle("Simboliu skaičius");
+                                builder.setMessage("Tekste yra " + key.length() + " simbolių");
                                 AlertDialog dialog = builder.create();
                                 dialog.show();
                                 return true;
@@ -64,17 +64,11 @@ public class MainActivity extends AppCompatActivity {
                 contextTextView = v;
 
         }
-        private int count(int hours, int minutes){ //this method counts difference between times in minutes
-                int currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-                int currentMinute = Calendar.getInstance().get(Calendar.MINUTE);
-                int currentTimeInMinutes = currentMinute + currentHour * 60;
-                int chosenTimeInMinutes = minutes+ hours * 60;
-                return Math.abs(chosenTimeInMinutes-currentTimeInMinutes);
-        }
+
         @Override
         public boolean onOptionsItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()){
-                        case R.id.valandu_skirtumas:
+                        case R.id.set_hours:
                                 mTimePicker.show();
                                 break;
                         case R.id.action_settings:
@@ -84,16 +78,27 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return super.onOptionsItemSelected(item);
         }
-        class thread1 implements Runnable{// this class creates thread
-                String tekstas;
+        private int getCurrentTimeInMinutes(){
+                int currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+                int currentMinute = Calendar.getInstance().get(Calendar.MINUTE);
+                return currentMinute + currentHour * 60;
+
+        }
+        private int countTimeDifferenceInMinutes(int hours, int minutes){
+                int chosenTimeInMinutes = minutes+ hours * 60;
+                return Math.abs(chosenTimeInMinutes-getCurrentTimeInMinutes());
+        }
+
+        class thread1 implements Runnable{
+                String textForDisplay;
                 public thread1(String text){
-                        this.tekstas = text;
+                        this.textForDisplay = text;
                 }
                 public void run(){
-                        for(int i=0;i<tekstas.length();i++){
+                        for(int i=0;i<textForDisplay.length();i++){
                                 runOnUiThread(this::run);
 
-                                display.setText(tekstas.charAt(i)+"");
+                                display.setText(textForDisplay.charAt(i)+"");
                                 try {
                                         Thread.sleep(1000);
                                 } catch (InterruptedException e) {
