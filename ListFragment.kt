@@ -1,4 +1,4 @@
-package com.example.a05_lab
+package com.example.a05lab
 
 
 import androidx.fragment.app.Fragment
